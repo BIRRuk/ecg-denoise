@@ -256,7 +256,10 @@ metrics = {
     'softmax_correct_cls':SoftmaxAcc,
 }
 
-
+m_config = {
+    'BCEWithLogitsLoss':{ 'metric':'bce_acc_cls', 'val_metric':'bce_med',},
+    'Softmax':{'metric':'softmax_correct_cls', 'val_metric':'softmax_acc_med_cls'},
+}
 
 if __name__=='__main__':
     EXAMPLES = 7
