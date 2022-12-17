@@ -17,9 +17,9 @@ if __name__=="__main__":
     import os
     from utils.utils import save_str_net
     save_str_net(net, pathj=os.path.join(ckpt_dir, 'str_net--1_exp.txt'))
-    print(net(torch.randn(1, classes_in, img_sze, img_sze)))
-    # from torchsummary import summary
-    # summary(net, tuple(input_shape)) # !cant display torchsummary of densenet
+    print(net(torch.randn(*input_shape)))
+    from torchsummary import summary
+    summary(net, tuple(input_shape)) # !cant display torchsummary of densenet
 
     from trn import train_dataloader, val_dataloader, device, optimizer, criterion
 
