@@ -3,10 +3,9 @@ import torch.nn as nn
 
 from config import classes_out, input_shape, ckpt_path, args, ckpt_dir, plot_dir
 
-import torchvision as tv
-net = tv.models.resnet18()
-net.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3))
-net.fc = nn.Linear(in_features=512, out_features=classes_out, bias=True)
+from models.unet1d import UNet
+
+net = UNet(1,1)
 
 def modify_net_(model): # visualize seed output
     print(f'[ {__name__} ]', 'modifying net')
@@ -17,7 +16,7 @@ if __name__=="__main__":
     import os
     from utils.utils import save_str_net
     save_str_net(net, pathj=os.path.join(ckpt_dir, 'str_net--1_exp.txt'))
-    print(net(torch.randn(*input_shape)))
+    print(net(torch.randn(1,*input_shape)))
     from torchsummary import summary
     summary(net, tuple(input_shape)) # !cant display torchsummary of densenet
 
