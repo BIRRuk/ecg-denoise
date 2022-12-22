@@ -51,18 +51,26 @@ class CropAndConcat(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int):
+    # def __init__(self, in_channels: int, out_channels: int, arc = [64, 128, 256, 512, 1024]):
+    def __init__(self, in_channels: int, out_channels: int, arc = [32, 64, 128, 256, 512]):
         super().__init__()
-        self.down_conv = nn.ModuleList([DoubleConvolution(i, o) for i, o in
-                                        [(in_channels, 64), (64, 128), (128, 256), (256, 512)]])
+        arc_ = list(reversed(arc))
+        self.down_conv = nn.ModuleList([
+            DoubleConvolution(i, o) for i, o in [
+                # (in_channels, arc[0]), (arc[0], arc[1]), (arc[1], arc[2]), (arc[2], arc[3])
+                (([in_channels]+arc)[i], ([in_channels]+arc)[i+1]) for i in range(len(arc)-1)
+            ]
+        ])
         self.down_sample = nn.ModuleList([DownSample() for _ in range(4)])
-        self.middle_conv = DoubleConvolution(512, 1024)
-        self.up_sample = nn.ModuleList([UpSample(i, o) for i, o in
-                                        [(1024, 512), (512, 256), (256, 128), (128, 64)]])
-        self.up_conv = nn.ModuleList([DoubleConvolution(i, o) for i, o in
-                                      [(1024, 512), (512, 256), (256, 128), (128, 64)]])
+        self.middle_conv = DoubleConvolution(arc[3], arc[4])
+        self.up_sample = nn.ModuleList([
+            UpSample(i, o) for i, o in [(arc_[i], arc_[i+1]) for i in range(len(arc)-1)]
+        ])
+        self.up_conv = nn.ModuleList([
+            DoubleConvolution(i, o) for i, o in [(arc_[i], arc_[i+1]) for i in range(len(arc)-1)]
+        ])
         self.concat = nn.ModuleList([CropAndConcat() for _ in range(4)])
-        self.final_conv = nn.Conv1d(64, out_channels, kernel_size=1)
+        self.final_conv = nn.Conv1d(arc[0], out_channels, kernel_size=1)
 
     def forward(self, x: torch.Tensor):
         pass_through = []
