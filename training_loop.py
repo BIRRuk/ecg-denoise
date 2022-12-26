@@ -58,31 +58,22 @@ def fit(
     net, eps, bs, criterion, optimizer, trn_dl, configs, args,
     val_dl=None, scheduler=None, trend=None, save_to_checkpoint=True,
     ckpt_path=None, val_start=False, val_only=False,
-    metric='softmax_correct', device=None, **kwds,
+    metric:dict = None, device=None, **kwds,
     ):
     # import json; print(json.dumps(configs, indent=4))
     if device == None: device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print('[ %s ]'%__name__, 'training on device:', device)
-
     global start_epoch, best_loss
     start_epoch = 0
     best_loss = float('inf')
     
-    from utils.metrics import metrics
-    assert metric in metrics.keys()
-    metric_ = [metric]
-    if 'val_metric' in kwds and kwds['val_metric'] is not None:
-        metric_.append(kwds['val_metric'])
-    else: metric_.append(metric)
-    metric = [metrics[i] for i in metric_]
-
     if ckpt_path is not None:
         load_kwargs = {'filename':ckpt_path, 'net':net}
         if args.load_trend: load_kwargs['trend']=trend
         if args.load_optim: load_kwargs['optimizer']=optimizer
         if args.load_scheduler: load_kwargs['scheduler']=scheduler
 
-        ckpt_loss, start_epoch, training_id = checkpoint.loadckpt2(['loss', 'epoch', 'training_id'], **load_kwargs)
+        ckpt_loss, start_epoch, training_id = checkpoint.loadckpt(['loss', 'epoch', 'training_id'], **load_kwargs)
         start_epoch += 1
         configs['training_id'] = training_id
         if args.use_ckpt_loss: best_loss = ckpt_loss
@@ -108,7 +99,7 @@ def fit(
 
     if val_start or val_only:
         if val_only: configs['save_to_checkpoint'] = False
-        loss_ep_val, stats_val = test(-1, net, val_dl, criterion, metric=metric[1], detail_print=True, device=device, **configs)
+        loss_ep_val, stats_val = test(-1, net, val_dl, criterion, metric=metric['val_metric'], detail_print=True, device=device, **configs)
         val_loss = loss_ep_val/val_dl.dataset.__len__()
         if trend is not None: trend.update(-1, loss_val = val_loss, 
             lr=torch.tensor([param['lr'] for param in optimizer.param_groups]), **stats_val.accuracy(mode='val'))
@@ -117,13 +108,13 @@ def fit(
     for ep in range(start_epoch, start_epoch+eps):
 
         loss_ep_trn, stats_trn = train(ep, net, trn_dl, criterion, 
-            optimizer, **configs, trend=trend, metric=metric[0], device=device)
+            optimizer, **configs, trend=trend, metric=metric['metric'], device=device)
         if trend is not None: 
             trend.update(ep, loss_trn = loss_ep_trn/trn_dl.dataset.__len__(), acc_trn=stats_trn.accuracy())
 
 
         if val_dl is not None:
-            loss_ep_val, stats_val = test(ep, net, val_dl, criterion, optimizer=optimizer, trend=trend, metric=metric[1],
+            loss_ep_val, stats_val = test(ep, net, val_dl, criterion, optimizer=optimizer, trend=trend, metric=metric['val_metric'],
                 scheduler=scheduler, detail_print=True, device=device, **configs, 
             )
             val_loss = loss_ep_val/val_dl.dataset.__len__()
@@ -135,11 +126,11 @@ def fit(
                 print('\x1b[36mloss delta: %f%%, new best!\x1b[39m'%(delta*100))
                 best_loss = val_loss
                 if save_to_checkpoint: 
-                    checkpoint.saveckpt2(id_=0, optimizer=optimizer, loss=best_loss, epoch=ep, net=net, 
+                    checkpoint.saveckpt(id_=0, optimizer=optimizer, loss=best_loss, epoch=ep, net=net, 
                         trend=trend, scheduler=scheduler, training_id=configs['training_id'], path=configs['ckpt_dir'])
             else: 
                 print('\x1b[38mloss delta: +%f%%\x1b[39m'%(delta*100))
-                if save_to_checkpoint: checkpoint.saveckpt2(
+                if save_to_checkpoint: checkpoint.saveckpt(
                     id_=-1, optimizer=optimizer, loss=best_loss, epoch=ep, net=net, trend=trend, 
                     scheduler=scheduler, training_id=configs['training_id'], path=configs['ckpt_dir'])
     

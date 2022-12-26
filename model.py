@@ -5,7 +5,7 @@ from config import classes_out, input_shape, ckpt_path, args, ckpt_dir, plot_dir
 
 from models.unet1d import UNet
 
-net = UNet(1,1)
+net = UNet(1,classes_out)
 
 def modify_net_(model): # visualize seed output
     print(f'[ {__name__} ]', 'modifying net')
@@ -25,8 +25,8 @@ if __name__=="__main__":
     dl = val_dataloader
     iter_ = iter(dl)
     # for _ in range(2):
-    #     batch = iter_.next()
-    batch = iter_.next()
+    #     batch = next(iter_)
+    batch = next(iter_)
     imgs = batch[0]
     print(f'[ {__name__} ]', 'labels:')
     print(batch[1])

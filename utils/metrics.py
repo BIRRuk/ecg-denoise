@@ -24,7 +24,7 @@ class BCEAcc():
 
     def accuracy(self, mode='primary'):
         if mode=='primary' : return self.correct.sum()/(self.total_count*self.classes_out)
-        else: return self.correct/self.total_count
+        else: return {'acc_val': self.correct/self.total_count}
 
     def stat(self, detailed=False):
         print('accuracy: {}'.format(self.accuracy(separate=detailed).tolist()))
@@ -245,11 +245,11 @@ class SoftmaxCorrect():
 
 
 metrics = {
-    "bce_acc":bce_acc,
-    "softmax_correct":softmax_correct,
-    'sensetivity':sensetivity,
-    'specificity':specificty,
-    'dice_score':dice_score,
+    # "bce_acc":bce_acc,
+    # "softmax_correct":softmax_correct,
+    # 'sensetivity':sensetivity,
+    # 'specificity':specificty,
+    # 'dice_score':dice_score,
     "bce_acc_cls":BCEAcc,
     'bce_med':BCEMed,
     'softmax_acc_med_cls':SoftmaxAcc,
@@ -257,8 +257,8 @@ metrics = {
 }
 
 m_config = {
-    'BCEWithLogitsLoss':{ 'metric':'bce_acc_cls', 'val_metric':'bce_med',},
-    'Softmax':{'metric':'softmax_correct_cls', 'val_metric':'softmax_acc_med_cls'},
+    'BCEWithLogitsLoss':{ 'metric':BCEAcc, 'val_metric':BCEMed,},
+    'Softmax':{'metric':SoftmaxAcc, 'val_metric':SoftmaxAcc},
 }
 
 if __name__=='__main__':

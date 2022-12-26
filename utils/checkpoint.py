@@ -26,10 +26,11 @@ def saveckpt(path='checkpoint', id_=None, **kwargs):
     for i in kwargs.items():
         key = i[0]
         item = i[1]
+        
         if isinstance(item, (int, float, str)):
             db[key] = item
 
-        else:
+        elif item is not None :
             patht = 'ckpt-%s_%i.pth'%(key,id_)
             db[key] = {
                 'type' :type(item).__name__,
@@ -44,7 +45,7 @@ def saveckpt(path='checkpoint', id_=None, **kwargs):
         f.write(json.dumps(db, ensure_ascii=False, indent=4))
         print('\x1b[32mckpt saved to %s\x1b[39m'%pathj)
 
-def loadckp(fetch:(list, tuple, str)=None, path=None, id_=None, filename=None, device=None, **kwargs,):
+def loadckpt(fetch:(list, tuple, str)=None, path=None, id_=None, filename=None, device=None, **kwargs,):
     '''
     filename = path + filename
     '''

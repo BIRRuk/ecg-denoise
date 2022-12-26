@@ -39,6 +39,7 @@ presets = dict(
     local = _cfg(
         # cache_dir='/home/biruk/Documents/ml-cache/221206/icentia11k',
         ds_root='~/Downloads/torrents/icentia11k/',
+        ds_root_val='~/Downloads/torrents/icentia11k/',
         bs=4
     ),
     colab = _cfg(
@@ -105,11 +106,11 @@ def parse_args():
 args = parse_args()
 
 if __name__!='__main__':
-    # from datagen import get_input_shape, classes_out
-    # input_shape = get_input_shape()
-    # classes_in = input_shape[0]
-    # preset['classes_out'] = classes_out
-    input_shape, classes_out = [1,1250], 1
+    from datagen import get_input_shape, classes_out
+    input_shape = get_input_shape()
+    classes_in = input_shape[0]
+    preset['classes_out'] = classes_out
+    # input_shape, classes_out = [1,1250], 1
     print(f'[ {__name__} ]', "input_shape:", input_shape, 'classes_out:', classes_out)
 
 

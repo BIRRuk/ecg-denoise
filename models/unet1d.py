@@ -46,7 +46,6 @@ class CropAndConcat(nn.Module):
     def forward(self, x: torch.Tensor, contracting_x: torch.Tensor):
         contracting_x = center_crop1d(contracting_x, x.shape[-1])
         x = torch.cat([x, contracting_x], dim=1)
-        print(x.shape)
         return x
 
 
@@ -76,19 +75,15 @@ class UNet(nn.Module):
         pass_through = []
         for i in range(len(self.down_conv)):
             x = self.down_conv[i](x)
-            print(x.shape)
             pass_through.append(x)
             x = self.down_sample[i](x)
-            print(x.shape)
 
         x = self.middle_conv(x)
-        print(x.shape)
 
         for i in range(len(self.up_conv)):
             x = self.up_sample[i](x)
             x = self.concat[i](x, pass_through.pop())
             x = self.up_conv[i](x)
-            print(x.shape)
 
         x = self.final_conv(x)
 

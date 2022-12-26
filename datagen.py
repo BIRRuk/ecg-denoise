@@ -10,6 +10,10 @@ from config import preset, args
 # -----------------------------------------------------------------------------
 # implement ds_trn and ds_val here
 # -----------------------------------------------------------------------------
+from datasets.icentia11k import Icentia
+# ds_trn = Icentia(preset['ds_root'], shuffle=True, transforms=trn_tfms)
+ds_trn = Icentia(preset['ds_root'], shuffle=True)
+ds_val = Icentia(preset['ds_root_val'], shuffle=False)
 
 def get_input_shape():
     return ds_trn[0][0].shape
@@ -17,18 +21,15 @@ def get_input_shape():
 classes_out = ds_trn.classes_out
 
 train_dataloader = torch.utils.data.DataLoader(ds_trn,
-    batch_size=preset_['bs'], shuffle=True)
+    batch_size=preset['bs'], shuffle=True)
 
 val_dataloader = torch.utils.data.DataLoader(ds_val,
-    batch_size=preset_['bs']*preset_['test_bs_multiplier'], shuffle=False)
+    batch_size=preset['bs']*preset['test_bs_multiplier'], shuffle=False)
 
 if __name__=='__main__':
-
-    plot_channel = 0
     for i in [train_dataloader, val_dataloader]:
         loop = iter(i)
-        batch = loop.next()
-        imgs = batch[0]
-        print(batch[1])
-        print(batch[1].shape)
-        print(imgs.shape)
+        # batch = loop.next()
+        batch = next(loop)
+        for i in batch:
+            print(i.shape)
