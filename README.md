@@ -43,10 +43,8 @@ Beats are annotated at the R timepoint in the QRS complex.
 ![input sample 0][input_sample_plot_y]
 
 <!-- [input_sample_plot_y]: cache/plots/sample_ds_out.png "sample y plot" -->
-[input_sample_plot_y]: cache/plots/download%20(1).png "sample y plot"
+[input_sample_plot_y]: cache/plots/in_undef.png "sample y plot"
 
-![input sample 1](cache/plots/download.png)
+![input sample 1](cache/plots/in_normal_undef.png)
 
 ![input sample 2](cache/plots/unded_normal%2000004,%2029,%20938225,%20940725.png)
-
-
