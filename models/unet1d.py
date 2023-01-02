@@ -4,12 +4,12 @@ from torch import nn
 
 
 class DoubleConvolution(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int):
+    def __init__(self, in_channels: int, out_channels: int, kernel_size=5):
         super().__init__()
 
-        self.conv0 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1)
+        self.conv0 = nn.Conv1d(in_channels, out_channels, kernel_size=kernel_size, padding=2)
         self.act = nn.ReLU()
-        self.conv1 = nn.Conv1d(out_channels, out_channels, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv1d(out_channels, out_channels, kernel_size=kernel_size, padding=2)
 
     def forward(self, x: torch.Tensor):
         x = self.act(self.conv0(x))

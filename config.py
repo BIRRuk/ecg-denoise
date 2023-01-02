@@ -21,6 +21,7 @@ crop_ratio_trn = 0.2
 # presets
 # -----------------------------------------------------------------------------
 machine = 'local'
+# machine = 'colab'
 import os
 def _cfg(**kwargs):
     return {
@@ -43,9 +44,11 @@ presets = dict(
         bs=4
     ),
     colab = _cfg(
-        ds_root = '/content/icentia11k/',
+        ds_root = '/content/ds/trn',
+        ds_root_val = '/content/ds/val',
         # cache_dir='/content/cache/icentia11k',
-        tqdm_ncols=100, bs=32,
+        tqdm_ncols=100, 
+        bs=2450,
     ),
     win = _cfg(
         ds_root = 'C:\\ML\\datasets\\icentia11k',

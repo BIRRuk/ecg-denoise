@@ -3,12 +3,15 @@ import torch
 from tqdm import tqdm
 
 from utils import checkpoint
+import time
 
 def train(epoch, net, trn_dl, criterion, optimizer, trend=None, metric=None, device=None, **configs):
     loop = tqdm(trn_dl, ascii=True, ncols=configs['tqdm_ncols'], desc=(f'{epoch:>2} trn'))
     loss_ep = 0.0
     stats = metric(configs['classes_out'], device=device)
     net.train()
+    time.time()
+    now = time.time()
 
     for idx, (imgs, labels) in enumerate(loop):
         imgs = imgs.to(device)
@@ -23,6 +26,12 @@ def train(epoch, net, trn_dl, criterion, optimizer, trend=None, metric=None, dev
 
         corrects, bs = stats(x, labels)
         loss_ep += (loss.item()*bs)
+
+        if time.time()-now > 300:
+            now = time.time()
+            checkpoint.saveckpt(
+                id_=-99, optimizer=optimizer, loss=best_loss, epoch=epoch, net=net, 
+                training_id=configs['training_id'], path=configs['ckpt_dir'])            
 
         loop.set_postfix(stat='%03d %.1f %.2f %.5f'%(
             100*corrects, 100*stats.accuracy(), loss, loss_ep/stats.total_count))
@@ -40,7 +49,6 @@ def test(epoch, net, val_dl, criterion, optimizer=None, trend=None, metric=None,
     for idx, (imgs, labels) in enumerate(loop):
         imgs = imgs.to(device)
         labels = labels.to(device)
-
         with torch.set_grad_enabled(False):
             x = net(imgs)
             loss = criterion(x, labels)
